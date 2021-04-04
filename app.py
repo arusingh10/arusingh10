@@ -33,25 +33,34 @@ def addImage():
             sess.commit()
             st.success("Image successfully saved") 
 
+def maskImg():
+    st.header("Create Masked Image")
+    h=st.slider("H")
+    s=st.slider("S")
+    v=st.slider("V")
+
+
 
 def trackObj():
     st.header("Webcam Live Feed")
     run = st.checkbox('Run')
     FRAME_WINDOW = st.image([])
-    camera = cv2.VideoCapture(0)
+    # camera = cv2.VideoCapture(0)
 
-    while run:
-        _, frame = camera.read()
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        FRAME_WINDOW.image(frame)
-    else:
-        st.write('Stopped')
+    # while run:
+    #     _, frame = camera.read()
+    #     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #     FRAME_WINDOW.image(frame)
+    # else:
+    #     st.write('Stopped')
+    masked_images=ImageModel.query.all()
+    st.text(masked_images)
 
 
 
 sidebar=st.sidebar
 sidebar.header("Choose an option")
-options=["Add image for masking", "Track Object with webcam"]
+options=["Add image for masking","Create masked image", "Track Object with webcam"]
 choice=sidebar.selectbox(options=options,label="Choose any option")
 
 
@@ -60,6 +69,8 @@ st.title("Camera Based Object Tracking System")
 if choice==options[0]:
     addImage()
 elif choice==options[1]:
+    pass
+elif choice==options[2]:
     trackObj()
 
 
