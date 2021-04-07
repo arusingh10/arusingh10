@@ -56,6 +56,21 @@ def trackObj():
     masked_images=ImageModel.query.all()
     st.text(masked_images)
 
+def showsavedImg():
+    saved_img=sess.query(ImageModel).all()
+    for image in saved_img:
+        st.text(image.name)
+        st.image(image.path)
+        st.button("Select Image",key=image.id)
+    setupsliders()
+
+
+def setupsliders():
+    values=["v1_min", "v2_min", "v3_min", "v1_max", "v2_max", "v3_max"]
+    cap_values={}
+    for value in values:
+        cap_values[value]=st.slider(value)
+
 
 
 sidebar=st.sidebar
@@ -69,7 +84,7 @@ st.title("Camera Based Object Tracking System")
 if choice==options[0]:
     addImage()
 elif choice==options[1]:
-    pass
+    showsavedImg()
 elif choice==options[2]:
     trackObj()
 

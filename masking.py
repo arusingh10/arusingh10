@@ -72,3 +72,5 @@ def convertMask(imgPath):
     cv2.imwrite(dest_path, thresh)
 
     return dest_path
+
+    
