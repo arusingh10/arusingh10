@@ -21,9 +21,8 @@ class Mask(Base):
     created=Column(String(20),nullable=False)
 
 if __name__ == "__main__":
-    pass
-    #engine = create_engine('sqlite:///db.sqlite3')
-    #Base.metadata.create_all(engine)
+    engine = create_engine('sqlite:///db.sqlite3')
+    Base.metadata.create_all(engine)
     
     
 

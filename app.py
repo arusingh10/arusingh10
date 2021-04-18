@@ -5,13 +5,22 @@ import pandas as pd
 from database import Image as ImageModel
 import cv2
 from PIL import Image
+from object_movement import Object_Tracker
+import base64
 
 # connect to database
-engine = create_engine('sqlite:///db.sqlite3')
+engine = create_engine('sqlite:///db.sqlite3?check_same_thread=False')
 Session = sessionmaker(bind=engine)
 sess = Session()
 
-#Application operations
+st.title("Camera Based Object Tracking System")
+
+sidebar=st.sidebar
+sidebar.header("Choose an option")
+options=["Add image for masking","Create masked image", "Track Object with webcam"]
+choice=sidebar.selectbox(options=options,label="Choose any option")
+
+
 def addImage():
     st.header("Upload image to continue")
     img_name=st.text_input("Enter image name")
@@ -33,53 +42,78 @@ def addImage():
             sess.commit()
             st.success("Image successfully saved") 
 
-def maskImg():
-    st.header("Create Masked Image")
-    h=st.slider("H")
-    s=st.slider("S")
-    v=st.slider("V")
 
+def showMask(selObj, FRAME_WINDOW):
+    st.markdown("### Adjust Sliders to create a mask for Tracking")
+    sliders = setupsliders()
+    save_btn = st.button('Save Mask Image')
+    range_filter = 'HSV'
 
+    if selObj.path:
+        image = cv2.imread(selObj.path)
+        frame_to_thresh = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    else:
+        camera = cv2.VideoCapture(0)
+    
+    while True:
+        
+        # v1_min, v2_min, v3_min, v1_max, v2_max, v3_max = get_trackbar_values(range_filter)
+        thresh = cv2.inRange(frame_to_thresh, (sliders['v1_min'], sliders['v2_min'], sliders['v3_min']), (sliders['v1_max'], sliders['v2_max'], sliders['v3_max']))
+
+        if save_btn:
+            try:
+                cv2.imwrite('masks/thresh.jpg', thresh)
+                st.success("Masked Image successfully saved") 
+                return None
+            except Exception as e:
+                st.error('error occured in saving mask image')
+                print(e)
+
+        FRAME_WINDOW.image(thresh)
 
 def trackObj():
-    st.header("Webcam Live Feed")
+    st.header("Live Object Tracking")
     run = st.checkbox('Run')
     FRAME_WINDOW = st.image([])
-    # camera = cv2.VideoCapture(0)
+    camera = cv2.VideoCapture(0)
 
-    # while run:
-    #     _, frame = camera.read()
-    #     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    #     FRAME_WINDOW.image(frame)
-    # else:
-    #     st.write('Stopped')
-    masked_images=ImageModel.query.all()
-    st.text(masked_images)
+    frameobj = Object_Tracker((0, 63, 161, 215, 160, 245))
+    cv2.imwrite('dsds.png', frameobj.track_object())
+    while run:
+        cv2.imshow('dsdsd', frameobj.track_object())
+        FRAME_WINDOW.image(frameobj.track_object())
+
 
 def showsavedImg():
+    st.markdown("## Create Masked Image")
     saved_img=sess.query(ImageModel).all()
-    for image in saved_img:
-        st.text(image.name)
-        st.image(image.path)
-        st.button("Select Image",key=image.id)
-    setupsliders()
+    image_names = [ image.name for image in saved_img ]
+    sel_image_name = st.selectbox(options = image_names, label = 'Select Image to Mask')
+    col1, col2 = st.beta_columns(2)
+    org_image = col1.image([])
+    masked_image = col2.image([])
+    btn = st.checkbox("Use This Image to create Mask")
+
+    selObj = sess.query(ImageModel).filter_by(name = sel_image_name).first()
+    org_image.image(selObj.path)
+
+    if btn:
+        showMask(selObj, masked_image)
 
 
 def setupsliders():
     values=["v1_min", "v2_min", "v3_min", "v1_max", "v2_max", "v3_max"]
     cap_values={}
-    for value in values:
-        cap_values[value]=st.slider(value)
+    set1, set2 = st.beta_columns(2)
+    for index, value in enumerate(values):
+        if index<3:
+            cap_values[value]=set1.slider(value, 0, 255)
+        else:
+            cap_values[value]=set2.slider(value, 0, 255, 255)
+
+    return cap_values
 
 
-
-sidebar=st.sidebar
-sidebar.header("Choose an option")
-options=["Add image for masking","Create masked image", "Track Object with webcam"]
-choice=sidebar.selectbox(options=options,label="Choose any option")
-
-
-st.title("Camera Based Object Tracking System")
 
 if choice==options[0]:
     addImage()
@@ -87,7 +121,3 @@ elif choice==options[1]:
     showsavedImg()
 elif choice==options[2]:
     trackObj()
-
-
-
-
