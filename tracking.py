@@ -7,8 +7,9 @@ import imutils
 import time
 
 
-def trackObject(greenLower=(15, 68, 152), greenUpper=(45, 196, 212)):
+def trackObject(greenLower=(30, 76, 45), greenUpper=(67, 182, 197)):
     video = False
+    print(greenLower, greenUpper)
 
     # initialize the list of tracked points, the frame counter,
     # and the coordinate deltas

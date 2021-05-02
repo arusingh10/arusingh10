@@ -97,11 +97,7 @@ def trackObj():
     FRAME_WINDOW = st.image([])
     camera = cv2.VideoCapture(0)
 
-    frameobj = Object_Tracker((0, 63, 161, 215, 160, 245))
-    cv2.imwrite("dsds.png", frameobj.track_object())
-    # while run:
-    #     cv2.imshow('dsdsd', frameobj.track_object())
-    #     FRAME_WINDOW.image(frameobj.track_object())
+    frameobj = Object_Tracker((0, 79, 144, 255, 222, 255))
     frameobj.track_object()
 
 
@@ -133,10 +129,9 @@ def showSavedMasks():
     selObj = sess.query(MaskModel).filter_by(filename=sel_image_name).first()
     org_image.image(selObj.mask_filename)
     mask_values = tuple([int(value) for value in selObj.mask_values.split(",")])
-    print(mask_values[:3], mask_values[3:])
 
     if btn:
-        trackObject()
+        trackObject(mask_values[:3], mask_values[3:])
 
 
 def setupsliders():

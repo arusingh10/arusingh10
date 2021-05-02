@@ -84,7 +84,7 @@ class Object_Tracker:
 
             # only proceed if at least one contour was found
             if len(cnts) > 0:
-                # find the largest contour in the mask, then use
+                # find the largest contour in the mask, then us
                 # it to compute the minimum enclosing circle and
                 # centroid
                 c = max(cnts, key=cv2.contourArea)
@@ -99,9 +99,11 @@ class Object_Tracker:
                     cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
                     cv2.circle(frame, center, 5, (0, 0, 255), -1)
                     self.pts.appendleft(center)
+                    print("appended")
 
             # loop over the set of tracked points
             for i in np.arange(1, len(self.pts)):
+                print("read")
                 # if either of the tracked points are None, ignore
                 # them
                 if self.pts[i - 1] is None or self.pts[i] is None:
